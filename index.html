@@ -66,6 +66,16 @@
     L.marker([20, 136.0]).bindPopup('平面直角座標18系原点').addTo(map);
     L.marker([26, 154.0]).bindPopup('平面直角座標19系原点').addTo(map);
 
+    // GeoJSONレイヤーを作成
+    fetch('./P29-21_10.geojson') // 群馬県の学校データを非同期読み込み
+        .then((res) => res.json())
+        .then((json) => {
+            // GeoJSONレイヤーを作成
+            L.geoJSON(json)
+                .bindPopup((leyer) => leyer.feature.properties.P29_004) // ポップアップで学校名を表示。jsonファイルを見るとfeature.properties.P29_004に学校名が入っていることがわかる。
+                .addTo(map)
+        })
+
 </script>
 
 </body>
