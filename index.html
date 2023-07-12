@@ -2,105 +2,12 @@
 <html>
 <meta charset="UTF-8">
 <head>
-    <title>1.地図タイルを背景として表示する</title>
-    <!-- LeafletのCSS読み込み -->
-    <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-            integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-            crossorigin=""
-    />
-    <!-- LeafletのJavaScript読み込み -->
-    <script
-            src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-            crossorigin=""
-    ></script>
-
-    <!-- Leaflet.markerclusterを読み込み。ピンを大量に表示すると重すぎるので"クラスタリング"をするためのプラグイン -->
-    <script src="https://unpkg.com/leaflet.markercluster@1.3.0/dist/leaflet.markercluster.js"></script>
-    <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.css"
-    />
-    <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet.markercluster@1.3.0/dist/MarkerCluster.Default.css"
-    />
+    <title>
+        位置情報エンジニア養成講座 - 位置情報アプリケーション開発〜入門編
+    </title>
 </head>
 <body>
-
-<!-- 地図を表示するdiv要素を宣言 -->
-<div id="map" style="height: 80vh"></div>
-
-<script>
-    // 地図インスタンスを初期化
-    const map = L.map('map', {
-        center: [36.5, 137.1], // 初期表示の地図中心の[緯度, 経度]
-        zoom: 5, // 初期ズームレベル
-    });
-
-    // 背景レイヤーインスタンスを初期化
-    const backgroundLayer = L.tileLayer(
-        'https://tile.openstreetmap.org/{z}/{x}/{y}.png', // OSMのURLテンプレート
-        {
-            maxZoom: 19,
-            attribution:
-                '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        },
-    );
-
-    // 地図インスタンスへレイヤーを追加
-    map.addLayer(backgroundLayer);
-
-    // マーカー(ピン)作成
-    const marker = L.marker([33, 129.5]); // [緯度, 経度]のように指定。逆順感があるので注意
-    marker.bindPopup('平面直角座標1系原点') // ピンをクリックすると表示されるテキストを設定
-    map.addLayer(marker);
-
-    L.marker([33, 131.0]).bindPopup('平面直角座標2系原点').addTo(map); // addToでも地図に追加できるみたい
-    L.marker([36, 132.1666666]).bindPopup('平面直角座標3系原点').addTo(map);
-    L.marker([33, 133.5]).bindPopup('平面直角座標4系原点').addTo(map);
-    L.marker([36, 134.3333333]).bindPopup('平面直角座標5系原点').addTo(map);
-    L.marker([36, 136.0]).bindPopup('平面直角座標6系原点').addTo(map);
-    L.marker([36, 137.1666666]).bindPopup('平面直角座標7系原点').addTo(map);
-    L.marker([36, 138.5]).bindPopup('平面直角座標8系原点').addTo(map);
-    L.marker([36, 139.8333333]).bindPopup('平面直角座標9系原点').addTo(map);
-    L.marker([40, 140.8333333]).bindPopup('平面直角座標10系原点').addTo(map);
-    L.marker([44, 140.25]).bindPopup('平面直角座標11系原点').addTo(map);
-    L.marker([44, 142.25]).bindPopup('平面直角座標12系原点').addTo(map);
-    L.marker([44, 144.25]).bindPopup('平面直角座標13系原点').addTo(map);
-    L.marker([26, 142.0]).bindPopup('平面直角座標14系原点').addTo(map);
-    L.marker([26, 127.5]).bindPopup('平面直角座標15系原点').addTo(map);
-    L.marker([26, 124.0]).bindPopup('平面直角座標16系原点').addTo(map);
-    L.marker([26, 131.0]).bindPopup('平面直角座標17系原点').addTo(map);
-    L.marker([20, 136.0]).bindPopup('平面直角座標18系原点').addTo(map);
-    L.marker([26, 154.0]).bindPopup('平面直角座標19系原点').addTo(map);
-
-    // // GeoJSONレイヤーを作成
-    // fetch('./P29-21_10.geojson') // 群馬県の学校データを非同期読み込み
-    //     .then((res) => res.json())
-    //     .then((json) => {
-    //         // GeoJSONレイヤーを作成
-    //         L.geoJSON(json)
-    //             .bindPopup((leyer) => leyer.feature.properties.P29_004) // ポップアップで学校名を表示。jsonファイルを見るとfeature.properties.P29_004に学校名が入っていることがわかる。
-    //             .addTo(map)
-    //     })
-
-    // 全国の学校の読み込み。重すぎて画面が固まるのでクラスタリングを使う。5万件のPointデータ量であれば最近のブラウザは処理可能だが、描画部分はボトルネックになってしまうのでそこだけ軽量化するアプローチ。
-    // (主に？)通信量・データ処理・描画 という3つの観点で最適化する必要がある。しかしどうやって計測すればいいんだろう？
-    fetch('./P29-21.geojson')
-        .then((res) => res.json())
-        .then((json) => {
-            // クラスタリングレイヤーを作成し地図に追加
-            const markers = L.markerClusterGroup()
-                .bindPopup((layer) => layer.feature.properties.P29_004,).addTo(map) // jsonを読み込んだ時にどうするかを先に定義することもできるってことかな
-
-            // よくよく考えると群馬の例だとL.markerClusterGroup()のように、マーカーを使うことをどこにも明示していないのにマーカーが表示されていた。jsonのgeometry.typeがPointだから？
-            L.geoJSON(json).addTo(markers)
-        })
-
-</script>
-
+<a href="./1/index.html">1.地図タイルを背景として表示する</a><br/>
+<a href="./2/index.html">2.地図上に図形を表示する</a><br/>
 </body>
 </html>
