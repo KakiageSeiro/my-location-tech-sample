@@ -131,10 +131,56 @@
                         '人口: ' + layer.feature.properties['人口'],
                 )
                 .addTo(map);
-            // レイヤー一覧に追加
+            // レイヤー一覧に追加。オーバーレイは重ねて表示できる(普通のレイヤーはどれか一つを選ぶラジオボタン方式)
             layersControl.addOverlay(polygon, '人口集中地区');
         });
 
+    // 事業者種別コードは以下
+    // 1: JRの新幹線
+    // 2: JRの在来線
+    // 3: 公営鉄道
+    // 4: 民営鉄道
+    // 5: 第三セクター
+
+    // 事業者種別コード別に色を塗り分ける
+    const colorDict = {
+        1: 'green',
+        2: 'blue',
+        3: 'red',
+        4: 'orange',
+        5: 'purple',
+    }
+
+    // 事業者種別コード別に線の太さを書き分ける
+    const weightDict = {
+        1: 10,
+        2: 7,
+        3: 4,
+        4: 4,
+        5: 4,
+    }
+
+    fetch('./N02-22_RailroadSection.geojson') // 鉄道データ
+        .then((res) => res.json())
+        .then((json) => {
+            // GeoJSONレイヤーを作成
+            const line = L.geoJSON(json, {
+                style: (feature) => ({
+                    weight: weightDict[feature.properties.N02_002], // 事業者種別コードから線の太さを得る
+                    color: colorDict[feature.properties.N02_002], // 事業者種別コードから色を得る
+                }),
+            })
+                // ポップアップで事業者名と路線名を表示
+                .bindPopup(
+                    (layer) =>
+                        layer.feature.properties.N02_004 +
+                        '<br/>' +
+                        layer.feature.properties.N02_003,
+                )
+                .addTo(map);
+            // レイヤー一覧に追加
+            layersControl.addOverlay(line, '鉄道データ');
+        });
 
 </script>
 </body>
